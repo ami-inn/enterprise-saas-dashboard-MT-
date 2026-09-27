@@ -1,67 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  LayoutDashboard,
-  FileCheck2,
-  GitMerge,
-  CreditCard,
-  FileText,
-  Settings,
-  ShieldCheck,
-  Menu,
-  Activity,
-} from "lucide-react";
+import { ShieldCheck, Menu, Activity } from "lucide-react";
 import { cn } from "@/utils";
 import { Badge } from "@/components/ui/badge";
 import { Sheet } from "@/components/ui/sheet";
-
-export interface NavItem {
-  id: string;
-  label: string;
-  icon: React.ElementType;
-  badge?: string;
-  badgeVariant?: "emerald" | "amber" | "rose" | "indigo" | "secondary";
-}
-
-const NAV_ITEMS: NavItem[] = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    id: "reviews",
-    label: "Reviews",
-    icon: FileCheck2,
-    badge: "87",
-    badgeVariant: "rose",
-  },
-  {
-    id: "workflows",
-    label: "Workflows",
-    icon: GitMerge,
-    badge: "Stage 2 ⚠️",
-    badgeVariant: "amber",
-  },
-  {
-    id: "payments",
-    label: "Payments",
-    icon: CreditCard,
-  },
-  {
-    id: "contracts",
-    label: "Contracts",
-    icon: FileText,
-    badge: "$3.67M",
-    badgeVariant: "indigo",
-  },
-  {
-    id: "settings",
-    label: "Settings",
-    icon: Settings,
-  },
-];
+import { NAV_ITEMS, NavItem } from "@/lib/constants/sidebar";
+import { usePathname, useRouter } from "next/navigation";
 
 interface SidebarContentProps {
   activeNav: string;
@@ -113,7 +58,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                   "group relative flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 select-none",
                   isActive
                     ? "bg-indigo-50/80 text-indigo-700 shadow-2xs dark:bg-indigo-950/50 dark:text-indigo-300 font-semibold border border-indigo-200/60 dark:border-indigo-800/40"
-                    : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 dark:text-zinc-400 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-200"
+                    : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 dark:text-zinc-400 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-200",
                 )}
               >
                 {isActive && (
@@ -125,7 +70,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                       "h-4 w-4 transition-colors",
                       isActive
                         ? "text-indigo-600 dark:text-indigo-400"
-                        : "text-slate-400 group-hover:text-slate-600 dark:text-zinc-500 dark:group-hover:text-zinc-300"
+                        : "text-slate-400 group-hover:text-slate-600 dark:text-zinc-500 dark:group-hover:text-zinc-300",
                     )}
                   />
                   <span>{item.label}</span>
@@ -166,29 +111,50 @@ export interface SidebarProps {
   initialActiveNav?: string;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ initialActiveNav = "dashboard" }) => {
-  const [activeNav, setActiveNav] = useState(initialActiveNav);
+export const Sidebar: React.FC<SidebarProps> = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const activeNav =
+    pathname === "/"
+      ? "dashboard"
+      : NAV_ITEMS.find(
+          (item) =>
+            item.href !== "/" && pathname.startsWith(item.href)
+        )?.id ?? "dashboard";
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const handleNavigation = (item: NavItem) => {
+    router.push(item.href);
+    setIsMobileOpen(false);
+  };
 
   return (
     <>
-      {/* Desktop Persistent Glassmorphic Light Sidebar */}
       <aside className="hidden lg:flex w-60 flex-col border-r border-slate-200/80 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80 shrink-0 h-screen sticky top-0 z-30">
-        <SidebarContent activeNav={activeNav} setActiveNav={setActiveNav} />
+        <SidebarContent
+          activeNav={activeNav}
+          setActiveNav={(id) => {
+            const item = NAV_ITEMS.find((item) => item.id === id);
+
+            if (item) {
+              handleNavigation(item);
+            }
+          }}
+        />
       </aside>
 
-      {/* Mobile Drawer Navigation Button */}
       <div className="lg:hidden fixed bottom-4 right-4 z-40">
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700"
           aria-label="Open Navigation Menu"
         >
           <Menu className="h-6 w-6" />
         </button>
       </div>
 
-      {/* Mobile Sheet Navigation */}
       <Sheet
         isOpen={isMobileOpen}
         onClose={() => setIsMobileOpen(false)}
@@ -197,7 +163,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ initialActiveNav = "dashboard"
       >
         <SidebarContent
           activeNav={activeNav}
-          setActiveNav={setActiveNav}
+          setActiveNav={(id) => {
+            const item = NAV_ITEMS.find((item) => item.id === id);
+
+            if (item) {
+              handleNavigation(item);
+            }
+          }}
           onItemClick={() => setIsMobileOpen(false)}
         />
       </Sheet>
