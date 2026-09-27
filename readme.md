@@ -1,3 +1,21 @@
+
+<div align="center">
+  <br />
+    <a href="" target="_blank">
+    <img src="public/image.png" alt="Project Banner" />
+    </a>
+  <br />
+
+  <div>
+    <img src="https://img.shields.io/badge/-Next.js-black?style=for-the-badge&logo=nextdotjs&logoColor=white" />
+    <img src="https://img.shields.io/badge/-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+    <img src="https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" />
+
+    
+  </div>
+
+
+
 # Enterprise SaaS Operations Dashboard
 
 ## Overview
